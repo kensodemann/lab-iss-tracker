@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 
+import { IssTrackingDataProvider } from '../../providers/iss-tracking-data/iss-tracking-data';
+
 declare var google: any;
 
 @Component({
@@ -11,10 +13,13 @@ export class MapPage {
   private map;
   private marker;
 
-  constructor(private navCtrl: NavController) {}
+  constructor(private navCtrl: NavController, private tracking:IssTrackingDataProvider) {}
 
   ionViewDidLoad() {
     this.createMap();
+    this.tracking.location().subscribe(x => console.log('location', x));
+    this.tracking.astronauts().subscribe(x => console.log('astronauts', x));
+    this.tracking.nextPasses({ latitude: 43, longitude: -89 }).subscribe(x => console.log('passes', x));
   }
 
   private createMap() {
