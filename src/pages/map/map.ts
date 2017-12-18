@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
 
 import { IssTrackingDataProvider } from '../../providers/iss-tracking-data/iss-tracking-data';
 
@@ -13,15 +12,13 @@ export class MapPage {
   private map;
   private marker;
 
-  constructor(private navCtrl: NavController, private tracking:IssTrackingDataProvider) {}
+  constructor(private data:IssTrackingDataProvider) {}
 
   ionViewDidLoad() {
-    console.log('I have loaded the map view');
     this.createMap();
   }
 
   ionViewDidEnter() {
-    console.log('I have entered the map view');
   }
 
   private createMap() {

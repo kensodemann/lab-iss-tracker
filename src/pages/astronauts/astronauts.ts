@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Astronaut } from '../../models/astronaut';
 import { IssTrackingDataProvider } from '../../providers/iss-tracking-data/iss-tracking-data';
 
 @Component({
@@ -6,13 +7,11 @@ import { IssTrackingDataProvider } from '../../providers/iss-tracking-data/iss-t
   templateUrl: 'astronauts.html'
 })
 export class AstronautsPage {
+  astronauts: Array<Astronaut>;
+
   constructor(private data: IssTrackingDataProvider) {}
 
-  ionViewDidLoad() {
-    console.log('I have loaded the astronaut view');
-  }
-
   ionViewDidEnter() {
-    console.log('I have entered the astronaut view');
+    this.data.astronauts().subscribe(a => this.astronauts = a);
   }
 }

@@ -8,9 +8,8 @@
 
 <ion-content padding>
   <ion-list>
-    <ion-item>
-      This is where ISS passes data will go
+    <ion-item *ngFor="let pass of passes">
+      {{pass.riseTime}}
     </ion-item>
   </ion-list>
-
 </ion-content>

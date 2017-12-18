@@ -21,7 +21,13 @@ export class IssTrackingDataProvider {
 
   nextPasses(position: Position): Observable<Array<Pass>> {
     return this.http.jsonp(`${this.baseUrl}/iss-pass.json?lat=${position.latitude}&lon=${position.longitude}`, 'callback').pipe(
-      map(res => (res as any).response as Array<Pass>)
+      map(res => {
+        const data = (res as any).response.map(r => ({
+          duration: r.duration,
+          riseTime: new Date(r.risetime * 1000)
+        }));
+        return data;
+      })
     );
   }
 

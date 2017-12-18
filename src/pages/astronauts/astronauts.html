@@ -8,8 +8,8 @@
 
 <ion-content padding>
   <ion-list>
-    <ion-item>
-      This will be a list of current astronauts
+    <ion-item *ngFor="let astronaut of astronauts">
+      {{astronaut.name}}
     </ion-item>
   </ion-list>
 </ion-content>

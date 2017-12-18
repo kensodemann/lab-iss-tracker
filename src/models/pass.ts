@@ -1,4 +1,4 @@
 export interface Pass {
   duration: number;
-  riseTime: number;
+  riseTime: Date;
 }
