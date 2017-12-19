@@ -16,10 +16,12 @@ export class MapPage {
   constructor(private navCtrl: NavController, private tracking:IssTrackingDataProvider) {}
 
   ionViewDidLoad() {
+    console.log('I have loaded the map view');
     this.createMap();
-    this.tracking.location().subscribe(x => console.log('location', x));
-    this.tracking.astronauts().subscribe(x => console.log('astronauts', x));
-    this.tracking.nextPasses({ latitude: 43, longitude: -89 }).subscribe(x => console.log('passes', x));
+  }
+
+  ionViewDidEnter() {
+    console.log('I have entered the map view');
   }
 
   private createMap() {
