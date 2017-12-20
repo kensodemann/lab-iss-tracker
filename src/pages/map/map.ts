@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
 import { IssTrackingDataProvider } from '../../providers/iss-tracking-data/iss-tracking-data';
+import { Position } from '../../models/position';
 
 declare var google: any;
 
@@ -9,32 +10,49 @@ declare var google: any;
   templateUrl: 'map.html'
 })
 export class MapPage {
+  private interval;
   private map;
   private marker;
 
   constructor(private data:IssTrackingDataProvider) {}
 
-  ionViewDidLoad() {
-    this.createMap();
-  }
-
   ionViewDidEnter() {
+    this.showLocation();
+    this.interval = setInterval(this.showLocation.bind(this), 10000);
   }
 
-  private createMap() {
+  ionViewDidLeave() {
+    clearInterval(this.interval);
+  }
+
+  private showLocation() {
+    this.data.location().subscribe(p => {
+      if (this.map) {
+        this.moveMap(p);
+      } else {
+        this.createMap(p);
+      }
+    })
+  }
+
+  private createMap(pos: Position) {
     this.map = new google.maps.Map(
       document.getElementById('iss-tracking-map'),
       {
-        center: new google.maps.LatLng(43.074237, -89.381012),
-        zoom: 15,
+        center: new google.maps.LatLng(pos.latitude, pos.longitude),
+        zoom: 5,
         mapTypeId: google.maps.MapTypeId.ROADMAP
       }
     );
     this.marker = new google.maps.Marker({
-      position: new google.maps.LatLng(43.074237, -89.381012),
+      position: new google.maps.LatLng(pos.latitude, pos.longitude),
       map: this.map,
-      title: 'Ionic HQ',
       animation: google.maps.Animation.DROP
     });
+  }
+
+  private moveMap(pos: Position) {
+    this.map.panTo(new google.maps.LatLng(pos.latitude, pos.longitude));
+    this.marker.setPosition(new google.maps.LatLng(pos.latitude, pos.longitude));
   }
 }
