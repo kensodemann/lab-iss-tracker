@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { HttpClientModule, HttpClientJsonpModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
@@ -12,6 +13,9 @@ import { TabsPage } from '../pages/tabs/tabs';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { IssTrackingDataProvider } from '../providers/iss-tracking-data/iss-tracking-data';
+import { LocationProvider } from '../providers/location/location';
+
+import { PipesModule } from '../pipes/pipes.module';
 
 @NgModule({
   declarations: [
@@ -23,9 +27,11 @@ import { IssTrackingDataProvider } from '../providers/iss-tracking-data/iss-trac
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     HttpClientModule,
     HttpClientJsonpModule,
-    IonicModule.forRoot(MyApp)
+    IonicModule.forRoot(MyApp),
+    PipesModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -39,7 +45,8 @@ import { IssTrackingDataProvider } from '../providers/iss-tracking-data/iss-trac
     StatusBar,
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
-    IssTrackingDataProvider
+    IssTrackingDataProvider,
+    LocationProvider
   ]
 })
 export class AppModule {}
