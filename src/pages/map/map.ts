@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 
+import { ConfigurationProvider } from '../../providers/configuration/configuration';
 import { IssTrackingDataProvider } from '../../providers/iss-tracking-data/iss-tracking-data';
 import { Position } from '../../models/position';
 
@@ -14,11 +15,18 @@ export class MapPage {
   private map;
   private marker;
 
-  constructor(private data:IssTrackingDataProvider) {}
+  constructor(
+    private configuration: ConfigurationProvider,
+    private data: IssTrackingDataProvider
+  ) {}
 
-  ionViewDidEnter() {
+  async ionViewDidEnter() {
     this.showLocation();
-    this.interval = setInterval(this.showLocation.bind(this), 10000);
+    await this.configuration.init();
+    this.interval = setInterval(
+      this.showLocation.bind(this),
+      this.configuration.refreshRate * 1000
+    );
   }
 
   ionViewDidLeave() {
@@ -32,7 +40,7 @@ export class MapPage {
       } else {
         this.createMap(p);
       }
-    })
+    });
   }
 
   private createMap(pos: Position) {
@@ -53,6 +61,8 @@ export class MapPage {
 
   private moveMap(pos: Position) {
     this.map.panTo(new google.maps.LatLng(pos.latitude, pos.longitude));
-    this.marker.setPosition(new google.maps.LatLng(pos.latitude, pos.longitude));
+    this.marker.setPosition(
+      new google.maps.LatLng(pos.latitude, pos.longitude)
+    );
   }
 }

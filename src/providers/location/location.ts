@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+
 import { Address } from '../../models/address';
+import { ConfigurationProvider } from '../../providers/configuration/configuration';
 import { Position } from '../../models/position';
 
 declare var google: any;
@@ -11,11 +13,11 @@ export class LocationProvider {
     longitude: -89.381012
   };
   private geocoder;
-  private position: Position;
+  private _currentPosition: Position;
 
-  constructor() {
+  constructor(private configuration: ConfigurationProvider) {
     this.geocoder = new google.maps.Geocoder();
-    this.position = Object.assign({}, this.defaultPosition);
+    this._currentPosition = Object.assign({}, this.defaultPosition);
   }
 
   address(position: Position): Promise<Address> {
@@ -34,20 +36,40 @@ export class LocationProvider {
     });
   }
 
-  currentPosition(): Promise<Position> {
-    if ('geolocation' in navigator) {
-      return new Promise(resolve => {
-        navigator.geolocation.getCurrentPosition(p => {
-          if (p.coords) {
-            this.position.latitude = p.coords.latitude;
-            this.position.longitude = p.coords.longitude;
-          }
-          resolve(this.position);
-        });
+  position(address: string): Promise<Position> {
+    return new Promise(resolve => {
+      this.geocoder.geocode({ address: address }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          resolve({
+            latitude: results[0].geometry.location.lat(),
+            longitude: results[0].geometry.location.lng()
+          });
+        } else {
+          resolve(this.defaultPosition);
+        }
       });
+    });
+  }
+
+  async currentPosition(): Promise<Position> {
+    await this.configuration.init();
+    if (this.configuration.useCurrentLocation && 'geolocation' in navigator) {
+      return await this.getCurrentPosition();
     } else {
-      return Promise.resolve(this.defaultPosition);
+      return this.configuration.position || this.defaultPosition;
     }
+  }
+
+  private getCurrentPosition(): Promise<Position> {
+    return new Promise(resolve => {
+      navigator.geolocation.getCurrentPosition(p => {
+        if (p.coords) {
+          this._currentPosition.latitude = p.coords.latitude;
+          this._currentPosition.longitude = p.coords.longitude;
+        }
+        resolve(this._currentPosition);
+      });
+    });
   }
 
   private buildAddress(fields): Address {
