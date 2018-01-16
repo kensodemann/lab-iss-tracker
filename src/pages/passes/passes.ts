@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
+import { IonicPage } from 'ionic-angular';
 import { LoadingController } from 'ionic-angular';
 import { IssTrackingDataProvider } from '../../providers/iss-tracking-data/iss-tracking-data';
 import { Address } from '../../models/address';
 import { Pass } from '../../models/pass';
 import { LocationProvider } from '../../providers/location/location';
 
+@IonicPage()
 @Component({
   selector: 'page-passes',
   templateUrl: 'passes.html'

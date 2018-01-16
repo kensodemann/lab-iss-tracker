@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
+import { IonicPage } from 'ionic-angular';
 import { Astronaut } from '../../models/astronaut';
 import { IssTrackingDataProvider } from '../../providers/iss-tracking-data/iss-tracking-data';
 
+@IonicPage()
 @Component({
   selector: 'page-astronauts',
   templateUrl: 'astronauts.html'

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { IonicPage } from 'ionic-angular';
 
 import { ConfigurationProvider } from '../../providers/configuration/configuration';
 import { IssTrackingDataProvider } from '../../providers/iss-tracking-data/iss-tracking-data';
@@ -6,6 +7,7 @@ import { Position } from '../../models/position';
 
 declare var google: any;
 
+@IonicPage()
 @Component({
   selector: 'page-map',
   templateUrl: 'map.html'

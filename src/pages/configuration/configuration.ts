@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
+import { IonicPage } from 'ionic-angular';
 
 import { ConfigurationProvider } from '../../providers/configuration/configuration';
 import { LocationProvider } from '../../providers/location/location';
 
+@IonicPage()
 @Component({
   selector: 'page-configuration',
   templateUrl: 'configuration.html'
