@@ -31,27 +31,26 @@ For the final step, we will add a simple configuration page. We will have two op
 
 We will:
 
-1. add the [App Preferences](https://ionicframework.com/docs/native/app-preferences/) plug-in
+1. add the [Ionic Storage](https://github.com/ionic-team/ionic-storage) module
 1. create a provider for our configuration items
 1. create a page
 
 #### Adding the Plugin
 
-First we need to install the plugin:
+First we need to install the module:
 
 ```bash
-$ ionic cordova plugin add cordova-plugin-app-preferences
-$ npm install --save @ionic-native/app-preferences
+$ npm install --save @ionic/storage
 ```
 
-The plugin will add an app-settings.json file. We do not need this file and can remove it. We should probably also add this file to our `.gitignore` file so we do not accidentally commit it at some point in the future.
+This module will store data in the best storage engine available to you on whichever platform you are running. The current prioritization is: SQLite, IndexedDB, WebSQL, and LocalStorage. Of these, SQLLite is the only one that is guarenteed to not be clobbered by the mobile OS if space is tight on the host device. However, it requires extra setup so we will skip that for this lab.
 
-Then we need to update the app's main module to make the plugin available.
+Then we need to update the app's main module to make the storage module available.
 
 ```ts
 ...
 
-import { AppPreferences } from '@ionic-native/app-preferences';
+import { IonicStorageModule } from '@ionic/storage';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
@@ -60,36 +59,32 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 @NgModule({
 
 ...
-
-  providers: [
-    AppPreferences,
-    {provide: ErrorHandler, useClass: IonicErrorHandler},
-    IssTrackingDataProvider,
-    LocationProvider,
-    StatusBar,
-    SplashScreen
-  ]
-})
-export class AppModule {}
+  imports: [
+    BrowserModule,
+    CommonModule,
+    HttpClientModule,
+    HttpClientJsonpModule,
+    IonicModule.forRoot(MyApp),
+    IonicStorageModule.forRoot(),
+    PipesModule
+  ],
+...
 ```
-
-Basically, just look at how we are already including the `StatusBar` plugin and follow the same pattern.
 
 #### Creating the Provider
 
-The configuration data is abstracted into a provider. This allows us to handle all of the logic associated with the data in a centralized manner. This includes using local storage when we are on the web, and the app preferences plugin when we are on a device.
+The configuration data is abstracted into a provider. This allows us to handle all of the logic associated with the data in a centralized manner.
 
 ```bash
 $ ionic g provider configuration
 ```
 
-Here is the code for the provider. Have a look at the `isNative()` method which uses the [platform](https://ionicframework.com/docs/api/platform/Platform/) service to determine if we are running natively on a device or via the web.
-
+Here is the code for the provider.
 
 ```ts
-import { AppPreferences } from '@ionic-native/app-preferences';
 import { Injectable } from '@angular/core';
 import { Platform } from 'ionic-angular';
+import { Storage } from '@ionic/storage';
 
 import { Position } from '../../models/position';
 
@@ -108,8 +103,8 @@ export class ConfigurationProvider {
 
   constructor(
     private platform: Platform,
-    private preferences: AppPreferences
-  ) {}
+    private storage: Storage
+  ) { }
 
   init(): Promise<void> {
     if (!this._promise) {
@@ -154,65 +149,31 @@ export class ConfigurationProvider {
     return this._useCurrentLocation === false ? false : true;
   }
 
-  private isNative(): boolean {
-    return this.platform.is('cordova');
-  }
-
   private async loadData(): Promise<void> {
     await this.platform.ready();
-    if (this.isNative()) {
-      await this.loadFromAppPreferences();
-    } else {
-      this.loadFromLocalStorage();
-    }
+    await this.loadFromAppPreferences();
   }
 
-  private loadFromAppPreferences(): Promise<void> {
-    return Promise.all([
-      this.preferences
-        .fetch(undefined, this._addressKey)
-        .then(x => (this._address = x)),
-      this.preferences
-        .fetch(undefined, this._positionKey)
-        .then(x => (this._position = x)),
-      this.preferences
-        .fetch(undefined, this._refreshRateKey)
-        .then(x => (this._refreshRate = x)),
-      this.preferences
-        .fetch(undefined, this._useCurrentLocationKey)
-        .then(x => (this._useCurrentLocation = x))
-    ]).then(() => null);
-  }
-
-  private loadFromLocalStorage(): void {
-    const posStr = localStorage.getItem(this._positionKey);
-    this._address = localStorage.getItem(this._addressKey);
-    if (posStr) {
-      this._position = JSON.parse(posStr);
-    }
-    this._refreshRate =
-      parseInt(localStorage.getItem(this._refreshRateKey)) || 15;
-    this._useCurrentLocation =
-      localStorage.getItem(this._useCurrentLocationKey) === 'false'
-        ? false
-        : true;
+  private async loadFromAppPreferences(): Promise<void> {
+    await this.storage.ready();
+    await Promise.all([
+      this._address = await this.storage.get(this._addressKey),
+      this._position = await this.storage.get(this._positionKey),
+      this._refreshRate = await this.storage.get(this._refreshRateKey),
+      this._useCurrentLocation = await this.storage.get(this._useCurrentLocationKey),
+    ]);
   }
 
   private async store(key: string, value: any) {
-    await this.platform.ready();
-    if (this.isNative()) {
-      await this.preferences.store(undefined, this._positionKey, value);
-    } else {
-      localStorage.setItem(
-        key,
-        key === this._positionKey
-          ? value && JSON.stringify(value)
-          : value && value.toString()
-      );
-    }
+    await this.storage.ready();
+    this.storage.set(
+      key,
+      key === this._positionKey
+        ? value && JSON.stringify(value)
+        : value && value.toString()
+    );
   }
 }
-
 ```
 
 Make sure the provider was added to your `app.module.ts` file.

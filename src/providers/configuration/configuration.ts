@@ -1,6 +1,6 @@
-import { AppPreferences } from '@ionic-native/app-preferences';
 import { Injectable } from '@angular/core';
 import { Platform } from 'ionic-angular';
+import { Storage } from '@ionic/storage';
 
 import { Position } from '../../models/position';
 
@@ -19,8 +19,8 @@ export class ConfigurationProvider {
 
   constructor(
     private platform: Platform,
-    private preferences: AppPreferences
-  ) {}
+    private storage: Storage
+  ) { }
 
   init(): Promise<void> {
     if (!this._promise) {
@@ -65,61 +65,28 @@ export class ConfigurationProvider {
     return this._useCurrentLocation === false ? false : true;
   }
 
-  private isNative(): boolean {
-    return this.platform.is('cordova');
-  }
-
   private async loadData(): Promise<void> {
     await this.platform.ready();
-    if (this.isNative()) {
-      await this.loadFromAppPreferences();
-    } else {
-      this.loadFromLocalStorage();
-    }
+    await this.loadFromAppPreferences();
   }
 
-  private loadFromAppPreferences(): Promise<void> {
-    return Promise.all([
-      this.preferences
-        .fetch(undefined, this._addressKey)
-        .then(x => (this._address = x)),
-      this.preferences
-        .fetch(undefined, this._positionKey)
-        .then(x => (this._position = x)),
-      this.preferences
-        .fetch(undefined, this._refreshRateKey)
-        .then(x => (this._refreshRate = x)),
-      this.preferences
-        .fetch(undefined, this._useCurrentLocationKey)
-        .then(x => (this._useCurrentLocation = x))
-    ]).then(() => null);
-  }
-
-  private loadFromLocalStorage(): void {
-    const posStr = localStorage.getItem(this._positionKey);
-    this._address = localStorage.getItem(this._addressKey);
-    if (posStr) {
-      this._position = JSON.parse(posStr);
-    }
-    this._refreshRate =
-      parseInt(localStorage.getItem(this._refreshRateKey)) || 15;
-    this._useCurrentLocation =
-      localStorage.getItem(this._useCurrentLocationKey) === 'false'
-        ? false
-        : true;
+  private async loadFromAppPreferences(): Promise<void> {
+    await this.storage.ready();
+    await Promise.all([
+      this._address = await this.storage.get(this._addressKey),
+      this._position = await this.storage.get(this._positionKey),
+      this._refreshRate = await this.storage.get(this._refreshRateKey),
+      this._useCurrentLocation = await this.storage.get(this._useCurrentLocationKey),
+    ]);
   }
 
   private async store(key: string, value: any) {
-    await this.platform.ready();
-    if (this.isNative()) {
-      await this.preferences.store(undefined, this._positionKey, value);
-    } else {
-      localStorage.setItem(
-        key,
-        key === this._positionKey
-          ? value && JSON.stringify(value)
-          : value && value.toString()
-      );
-    }
+    await this.storage.ready();
+    this.storage.set(
+      key,
+      key === this._positionKey
+        ? value && JSON.stringify(value)
+        : value && value.toString()
+    );
   }
 }

@@ -3,8 +3,8 @@ import { NgModule, ErrorHandler } from '@angular/core';
 import { HttpClientModule, HttpClientJsonpModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
+import { IonicStorageModule } from '@ionic/storage';
 
-import { AppPreferences  } from '@ionic-native/app-preferences';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
@@ -36,6 +36,7 @@ import { PipesModule } from '../pipes/pipes.module';
     HttpClientModule,
     HttpClientJsonpModule,
     IonicModule.forRoot(MyApp),
+    IonicStorageModule.forRoot(),
     PipesModule
   ],
   bootstrap: [IonicApp],
@@ -48,7 +49,6 @@ import { PipesModule } from '../pipes/pipes.module';
     TabsPage
   ],
   providers: [
-    AppPreferences,
     ConfigurationProvider,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     IssTrackingDataProvider,
