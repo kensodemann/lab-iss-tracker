@@ -1,6 +1,6 @@
 {
-  "name": "lab-iss-tracker",
-  "type": "ionic-angular",
+  "name": "lab-iss-tracker-v4",
+  "type": "angular",
   "integrations": {
     "cordova": {}
   }
