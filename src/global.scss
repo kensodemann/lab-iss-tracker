@@ -1,0 +1,14 @@
+// NOTE: I am not a huge fan of this being here, but I cannot find a way to get the current platform right now
+//       I will work that out later.
+
+.scroll-md {
+  #iss-tracking-map {
+    height: calc(100vh - 112px);
+  }
+}
+
+.scroll-ios {
+  #iss-tracking-map {
+    height: calc(100vh - 93px);
+  }
+}
