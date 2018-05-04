@@ -4,4 +4,23 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content></ion-content>
+<ion-content padding>
+  <ion-list>
+    <ion-item>
+      <div class="address">
+        <div class="title">
+          Address:
+        </div>
+        <div>
+          {{this.address | address: 'line1'}}
+        </div>
+        <div>
+          {{this.address | address: 'line2'}}
+        </div>
+      </div>
+    </ion-item>
+    <ion-item *ngFor="let pass of passes">
+      {{pass.riseTime | date: 'EEE, MMM d, y, h:mm:ss a'}}
+    </ion-item>
+  </ion-list>
+</ion-content>

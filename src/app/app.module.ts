@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientJsonpModule, HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule, RouteReuseStrategy } from '@angular/router';
@@ -17,6 +17,7 @@ import { AppComponent } from './app.component';
   imports: [
     BrowserModule,
     HttpClientModule,
+    HttpClientJsonpModule,
     IonicModule.forRoot(),
     IonicStorageModule.forRoot(),
     RouterModule.forRoot([

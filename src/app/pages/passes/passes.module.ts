@@ -3,6 +3,8 @@ import { RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+import { PipesModule  } from '../../pipes/pipes.module';
 import { PassesPage } from './passes.page';
 
 @NgModule({
@@ -10,6 +12,7 @@ import { PassesPage } from './passes.page';
     IonicModule,
     CommonModule,
     FormsModule,
+    PipesModule,
     RouterModule.forChild([{ path: '', component: PassesPage }])
   ],
   declarations: [PassesPage]
