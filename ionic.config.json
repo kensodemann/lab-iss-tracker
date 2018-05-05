@@ -1,5 +1,5 @@
 {
-  "name": "lab-iss-tracker-v4",
+  "name": "lab-iss-tracker",
   "type": "angular",
   "integrations": {
     "cordova": {}
