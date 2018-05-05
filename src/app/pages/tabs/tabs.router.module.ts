@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { TabsPage } from './tabs.page';
+import { AstronautsPage } from '../astronauts/astronauts.page';
+import { ConfigurationPage } from '../configuration/configuration.page';
 import { MapPage } from '../map/map.page';
 import { PassesPage } from '../passes/passes.page';
-import { AstronautsPage } from '../astronauts/astronauts.page';
+import { TabsPage } from './tabs.page';
 
 const routes: Routes = [
   {
@@ -25,6 +26,11 @@ const routes: Routes = [
         path: 'astronauts',
         outlet: 'astronauts',
         component: AstronautsPage
+      },
+      {
+        path: 'configuration',
+        outlet: 'configuration',
+        component: ConfigurationPage
       }
     ]
   },

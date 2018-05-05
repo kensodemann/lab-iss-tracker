@@ -8,8 +8,9 @@ import { TabsPageRoutingModule } from './tabs.router.module';
 
 import { TabsPage } from './tabs.page';
 import { AstronautsPageModule } from '../astronauts/astronauts.module';
-import { PassesPageModule } from '../passes/passes.module';
+import { ConfigurationPageModule } from '../configuration/configuration.module';
 import { MapPageModule } from '../map/map.module';
+import { PassesPageModule } from '../passes/passes.module';
 
 @NgModule({
   imports: [
@@ -17,9 +18,10 @@ import { MapPageModule } from '../map/map.module';
     CommonModule,
     FormsModule,
     TabsPageRoutingModule,
+    AstronautsPageModule,
+    ConfigurationPageModule,
     MapPageModule,
-    PassesPageModule,
-    AstronautsPageModule
+    PassesPageModule
   ],
   declarations: [TabsPage]
 })

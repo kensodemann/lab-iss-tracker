@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Configuration</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item>
+      <ion-label floating>Refresh Map (Seconds)</ion-label>
+      <ion-input type="number" [(ngModel)]="refreshRate"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label floating>Address</ion-label>
+      <ion-textarea [(ngModel)]="address" (change)="addressChanged()"></ion-textarea>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Use Current Location</ion-label>
+      <ion-toggle [(ngModel)]="useLocation"></ion-toggle>
+    </ion-item>
+  </ion-list>
+</ion-content>
