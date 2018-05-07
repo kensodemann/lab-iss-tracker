@@ -8,14 +8,21 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
-
+  let isAndroid: boolean;
   let statusBarSpy, splashScreenSpy, platformReadySpy, platformSpy;
 
   beforeEach(async () => {
-    statusBarSpy = jasmine.createSpyObj('StatusBar', ['styleDefault']);
+    statusBarSpy = jasmine.createSpyObj('StatusBar', [
+      'backgroundColorByHexString',
+      'styleDefault'
+    ]);
     splashScreenSpy = jasmine.createSpyObj('SplashScreen', ['hide']);
     platformReadySpy = Promise.resolve();
-    platformSpy = jasmine.createSpyObj('Platform', { ready: platformReadySpy });
+    isAndroid = false;
+    platformSpy = jasmine.createSpyObj('Platform', {
+      is: isAndroid,
+      ready: platformReadySpy
+    });
 
     TestBed.configureTestingModule({
       declarations: [AppComponent],
@@ -23,8 +30,8 @@ describe('AppComponent', () => {
       providers: [
         { provide: StatusBar, useValue: statusBarSpy },
         { provide: SplashScreen, useValue: splashScreenSpy },
-        { provide: Platform, useValue: platformSpy },
-      ],
+        { provide: Platform, useValue: platformSpy }
+      ]
     }).compileComponents();
   });
 
@@ -43,5 +50,4 @@ describe('AppComponent', () => {
   });
 
   // TODO: add more tests!
-
 });
