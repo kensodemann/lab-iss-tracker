@@ -19,10 +19,7 @@ export class ConfigurationService {
   private _refreshRateKey = 'refreshRate';
   private _useCurrentLocationKey = 'useCurrentLocation';
 
-  constructor(
-    private platform: Platform,
-    private storage: Storage
-  ) { }
+  constructor(private platform: Platform, private storage: Storage) {}
 
   init(): Promise<void> {
     if (!this._promise) {
@@ -75,10 +72,16 @@ export class ConfigurationService {
   private async loadFromAppPreferences(): Promise<void> {
     await this.storage.ready();
     await Promise.all([
-      this._address = await this.storage.get(this._addressKey),
-      this._position = await this.storage.get(this._positionKey),
-      this._refreshRate = await this.storage.get(this._refreshRateKey),
-      this._useCurrentLocation = await this.storage.get(this._useCurrentLocationKey),
+      (this._address = await this.storage.get(this._addressKey)),
+      (this._position = await this.storage
+        .get(this._positionKey)
+        .then(p => p && JSON.parse(p))),
+      (this._refreshRate = await this.storage
+        .get(this._refreshRateKey)
+        .then(r => r && parseInt(r))),
+      (this._useCurrentLocation = await this.storage
+        .get(this._useCurrentLocationKey)
+        .then(f => f && f === 'true'))
     ]);
   }
 

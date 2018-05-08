@@ -14,12 +14,12 @@ export class AddressPipe implements PipeTransform {
 
     switch (format) {
       case 'line1':
-        return `${value.streetNumber}${
+        return `${value.streetNumber || ''}${
           value.streetNumber && value.street ? ' ' : ''
-        }${value.street}`;
+        }${value.street || ''}`;
 
       case 'line2':
-        let rtn = value.city;
+        let rtn = value.city || '';
         if (value.area) {
           rtn += rtn && ', '
           rtn += value.area;

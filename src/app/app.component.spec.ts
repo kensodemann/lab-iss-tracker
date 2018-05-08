@@ -8,7 +8,6 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
-  let isAndroid: boolean;
   let statusBarSpy, splashScreenSpy, platformReadySpy, platformSpy;
 
   beforeEach(async () => {
@@ -18,9 +17,8 @@ describe('AppComponent', () => {
     ]);
     splashScreenSpy = jasmine.createSpyObj('SplashScreen', ['hide']);
     platformReadySpy = Promise.resolve();
-    isAndroid = false;
     platformSpy = jasmine.createSpyObj('Platform', {
-      is: isAndroid,
+      is: false,
       ready: platformReadySpy
     });
 
@@ -43,11 +41,26 @@ describe('AppComponent', () => {
 
   it('should initialize the app', async () => {
     TestBed.createComponent(AppComponent);
-    expect(platformSpy.ready).toHaveBeenCalled();
+    expect(platformSpy.ready).toHaveBeenCalledTimes(1);
     await platformReadySpy;
-    expect(statusBarSpy.styleDefault).toHaveBeenCalled();
-    expect(splashScreenSpy.hide).toHaveBeenCalled();
+    expect(statusBarSpy.styleDefault).toHaveBeenCalledTimes(1);
+    expect(splashScreenSpy.hide).toHaveBeenCalledTimes(1);
   });
 
-  // TODO: add more tests!
+  it('sets the status bar background on Android', async () => {
+    platformSpy.is.and.returnValue(true);
+    TestBed.createComponent(AppComponent);
+    await platformReadySpy;
+    expect(platformSpy.is).toHaveBeenCalledTimes(1);
+    expect(platformSpy.is).toHaveBeenCalledWith('android');
+    expect(statusBarSpy.backgroundColorByHexString).toHaveBeenCalledTimes(1);
+    expect(statusBarSpy.backgroundColorByHexString).toHaveBeenCalledWith('#520E7A');
+  });
+
+  it('does not set the status bar background on iOS', async () => {
+    platformSpy.is.and.returnValue(false);
+    TestBed.createComponent(AppComponent);
+    await platformReadySpy;
+    expect(statusBarSpy.backgroundColorByHexString).not.toHaveBeenCalled();
+  });
 });
