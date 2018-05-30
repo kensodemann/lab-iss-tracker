@@ -5,6 +5,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { IonicStorageModule } from '@ionic/storage';
 
+import { Geolocation } from '@ionic-native/geolocation';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
@@ -51,6 +52,7 @@ import { PipesModule } from '../pipes/pipes.module';
   providers: [
     ConfigurationProvider,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
+    Geolocation,
     IssTrackingDataProvider,
     LocationProvider,
     StatusBar,
