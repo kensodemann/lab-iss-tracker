@@ -1,15 +1,19 @@
 import { fakeAsync, inject, TestBed, tick } from '@angular/core/testing';
+import { Platform } from '@ionic/angular';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
 
 import { Address } from '../../models/address';
 import { ConfigurationService } from '../configuration/configuration.service';
 import { LocationService } from './location.service';
 import { Position } from '../../models/position';
-import { configFromURL } from '@ionic/core';
+import { Title } from '@angular/platform-browser';
 
 describe('LocationService', () => {
   let configurationServiceSpy;
   let geocoder;
+  let geolocationSpy;
   let locationService: LocationService;
+  let platformSpy;
   let testAddresses;
   let testLocations;
 
@@ -20,6 +24,11 @@ describe('LocationService', () => {
       init: jasmine.createSpy('init'),
       useCurrentLocation: false
     };
+
+    geolocationSpy = jasmine.createSpyObj('Geolocation', {
+      getCurrentPosition: Promise.resolve({})
+    });
+    platformSpy = jasmine.createSpyObj('Platform', ['is']);
 
     geocoder = jasmine.createSpyObj('geocoder', ['geocode']);
     window['google'] = {
@@ -37,18 +46,24 @@ describe('LocationService', () => {
     TestBed.configureTestingModule({
       providers: [
         LocationService,
-        { provide: ConfigurationService, useValue: configurationServiceSpy }
+        { provide: ConfigurationService, useValue: configurationServiceSpy },
+        { provide: Geolocation, useValue: geolocationSpy },
+        { provide: Platform, useValue: platformSpy }
       ]
     });
-    locationService = new LocationService(configurationServiceSpy);
+    locationService = new LocationService(
+      configurationServiceSpy,
+      geolocationSpy,
+      platformSpy
+    );
   });
 
-  it(
-    'should be created',
-    inject([LocationService], (service: LocationService) => {
+  it('should be created', inject(
+    [LocationService],
+    (service: LocationService) => {
       expect(service).toBeTruthy();
-    })
-  );
+    }
+  ));
 
   describe('address', () => {
     it('calls the geocoder', () => {
@@ -111,6 +126,7 @@ describe('LocationService', () => {
   describe('position', () => {
     it('calls the geocoder', () => {
       locationService.position('123 South Main Street, Fillmore, VA');
+      expect(geolocationSpy.getCurrentPosition).not.toHaveBeenCalled();
       expect(geocoder.geocode).toHaveBeenCalledTimes(1);
       expect(geocoder.geocode.calls.first().args[0]).toEqual({
         address: '123 South Main Street, Fillmore, VA'
@@ -132,7 +148,7 @@ describe('LocationService', () => {
     );
 
     it(
-      'resolves the default location if no data was returned',
+      'resolves the prior (default) location if no data was returned',
       fakeAsync(() => {
         let position: Position;
         locationService
@@ -164,6 +180,60 @@ describe('LocationService', () => {
         });
       })
     );
+  });
+
+  describe('current location on device', () => {
+    beforeEach(() => {
+      platformSpy.is.and.returnValue(true);
+    });
+
+    describe('with use current location', () => {
+      beforeEach(() => {
+        configurationServiceSpy.useCurrentLocation = true;
+      });
+
+      it('gets the current location', async () => {
+        await locationService.currentPosition();
+        expect(geolocationSpy.getCurrentPosition).toHaveBeenCalledTimes(1);
+      });
+
+      it('uses a timeout of 10 seconds', async () => {
+        await locationService.currentPosition();
+        expect(geolocationSpy.getCurrentPosition).toHaveBeenCalledWith({
+          timeout: 10000
+        });
+      });
+
+      it('resolves the returned position', async () => {
+        geolocationSpy.getCurrentPosition.and.returnValue(
+          Promise.resolve({
+            coords: {
+              latitude: 45.99385,
+              longitude: -75.427389
+            }
+          })
+        );
+        const p = await locationService.currentPosition();
+        expect(p).toEqual({
+          latitude: 45.99385,
+          longitude: -75.427389
+        });
+      });
+
+      it('resolves the last known (or default) position if no position is returned', async () => {
+        const p = await locationService.currentPosition();
+        expect(p).toEqual({
+          latitude: 43.074237,
+          longitude: -89.381012
+        });
+      });
+    });
+
+    describe('without use current location', () => {
+      it('does not get the location', () => {});
+
+      it('resolves the position for the entered address', () => {});
+    });
   });
 
   function initializeTestData() {

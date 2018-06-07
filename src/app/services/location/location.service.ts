@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { Platform } from '@ionic/angular';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
 
 import { Address } from '../../models/address';
 import { ConfigurationService } from '../configuration/configuration.service';
@@ -17,7 +19,11 @@ export class LocationService {
   private geocoder;
   private _currentPosition: Position;
 
-  constructor(private configuration: ConfigurationService) {
+  constructor(
+    private configuration: ConfigurationService,
+    private geolocation: Geolocation,
+    private platform: Platform
+  ) {
     this.geocoder = new google.maps.Geocoder();
     this._currentPosition = Object.assign({}, this.defaultPosition);
   }
@@ -55,14 +61,31 @@ export class LocationService {
 
   async currentPosition(): Promise<Position> {
     await this.configuration.init();
-    if (this.configuration.useCurrentLocation && 'geolocation' in navigator) {
-      return await this.getCurrentPosition();
+    if (this.configuration.useCurrentLocation && this.canGeolocate()) {
+      return this.getCurrentPosition();
     } else {
       return this.configuration.position || this.defaultPosition;
     }
   }
 
-  private getCurrentPosition(): Promise<Position> {
+  private canGeolocate(): boolean {
+    return this.platform.is('cordova') || 'geolocation' in navigator;
+  }
+
+  private async getCurrentPosition(): Promise<Position> {
+    if (this.platform.is('cordova')) {
+      const p = await this.geolocation.getCurrentPosition({ timeout: 10000 });
+      if (p.coords) {
+        this._currentPosition.latitude = p.coords.latitude;
+        this._currentPosition.longitude = p.coords.longitude;
+      }
+      return this._currentPosition;
+    } else {
+      return this.getLocationViaWebApi();
+    }
+  }
+
+  private getLocationViaWebApi(): Promise<Position> {
     return new Promise(resolve => {
       navigator.geolocation.getCurrentPosition(p => {
         if (p.coords) {
